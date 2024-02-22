@@ -1,0 +1,38 @@
+version: '3.3'
+services:
+  mongodb:
+    container_name: payever-mongo
+    image: mongo:6.0.5
+    env_file:
+      - .env
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data_container:/data/db
+  rabbitmq:
+    container_name: payever-rabbit
+    image: rabbitmq:3.11.13-management
+    env_file:
+      - .env
+    volumes:
+      - rabbit_data_container:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  api:
+    container_name: payever-api
+    image: node:16-alpine
+    volumes:
+      - .:/app
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+    command: sh -c "cd /app && yarn start"
+    env_file:
+      - .env
+    depends_on:
+      - mongodb
+      - rabbitmq
+
+volumes:
+  mongodb_data_container:
+  rabbit_data_container:
